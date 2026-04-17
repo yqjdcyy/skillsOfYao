@@ -1,0 +1,225 @@
+{
+  "version": "1.1",
+  "technologies": [
+    {
+      "name": "MCP",
+      "summary": "Model Context Protocol，标准化 AI 与外部工具/数据源的集成协议。",
+      "tags": ["协议", "标准化", "工具调用", "AI 集成", "API"],
+      "doc_url": "https://modelcontextprotocol.io",
+      "github_url": "https://github.com/modelcontextprotocol",
+      "sources": [
+        {
+          "name": "MCP 官方规范说明",
+          "url": "https://modelcontextprotocol.io/introduction",
+          "type": "标准/规范",
+          "authority": "A",
+          "role": "协议对象模型、设计目标与兼容边界"
+        }
+      ],
+      "architecture": {
+        "view": "协议驱动逻辑分层",
+        "layers": [
+          {"name": "协议定义层", "responsibility": "定义 tools、resources、prompts 等统一对象模型"},
+          {"name": "客户端适配层", "responsibility": "在 IDE、Agent、应用宿主侧建立连接并消费协议"},
+          {"name": "服务暴露层", "responsibility": "把外部工具、数据源、工作流封装成 MCP Server"},
+          {"name": "安全治理层", "responsibility": "处理权限、审计、隔离与生命周期管理"}
+        ],
+        "physical_view": "宿主 / 客户端 -> MCP 通道 -> MCP 服务端 -> 工具 / 数据系统",
+        "control_point": "协议兼容性与能力抽象",
+        "integration_surface": "工具、资源、数据源、提示词能力",
+        "boundary": "负责标准化接入，不直接承担复杂任务规划与业务自治",
+        "difference_marker": "协议标准化主导"
+      }
+    },
+    {
+      "name": "LLM",
+      "summary": "Large Language Model，大语言模型，用于理解与生成自然语言。",
+      "tags": ["大模型", "自然语言", "生成式 AI", "推理"],
+      "doc_url": "https://platform.openai.com/docs",
+      "github_url": "",
+      "architecture": {
+        "view": "模型能力驱动逻辑分层",
+        "layers": [
+          {"name": "输入控制层", "responsibility": "处理 prompt、上下文、系统指令与检索增强"},
+          {"name": "推理生成层", "responsibility": "进行理解、推理、生成与采样"},
+          {"name": "对齐后处理层", "responsibility": "输出约束、过滤、结构化与安全控制"},
+          {"name": "服务封装层", "responsibility": "以 API 或模型服务形式向外提供能力"}
+        ],
+        "physical_view": "应用侧 -> 提示词 / 检索增强 -> 模型服务 -> 护栏 / 后处理",
+        "control_point": "模型推理链路与上下文控制",
+        "integration_surface": "模型服务、检索系统、输出约束能力",
+        "boundary": "偏基础模型能力供给，不天然覆盖自治执行与多工具编排",
+        "difference_marker": "模型能力主导"
+      }
+    },
+    {
+      "name": "Agent",
+      "summary": "AI Agent，具备规划与执行能力、可完成多步任务的智能体。",
+      "tags": ["智能体", "自主", "规划", "执行", "多步任务", "自动化"],
+      "doc_url": "",
+      "github_url": "",
+      "sources": [
+        {
+          "name": "Anthropic Agentic Systems",
+          "url": "https://docs.anthropic.com/en/docs/build-with-claude/agentic-systems",
+          "type": "官方文档",
+          "authority": "B",
+          "role": "智能体系统设计原则与任务模式"
+        },
+        {
+          "name": "OpenAI Agents Guide",
+          "url": "https://platform.openai.com/docs/guides/agents",
+          "type": "官方文档",
+          "authority": "B",
+          "role": "Agent 角色、工具调用与运行形态"
+        }
+      ],
+      "architecture": {
+        "view": "任务自治驱动逻辑分层",
+        "layers": [
+          {"name": "目标理解层", "responsibility": "解析用户意图、约束与可用上下文"},
+          {"name": "规划决策层", "responsibility": "拆解任务、生成计划并决定下一步"},
+          {"name": "执行工具层", "responsibility": "调用工具、操作环境并落地动作"},
+          {"name": "反馈记忆层", "responsibility": "记录观察结果、沉淀状态并迭代修正"}
+        ],
+        "physical_view": "目标输入 -> 规划器 -> 工具执行器 -> 记忆 / 观察",
+        "control_point": "规划-执行-反馈闭环",
+        "integration_surface": "工具、运行环境、记忆、外部观察源",
+        "boundary": "强调自治任务闭环，不等同于协议标准或 IDE 宿主",
+        "difference_marker": "任务编排主导"
+      }
+    },
+    {
+      "name": "Cursor",
+      "summary": "AI 原生代码编辑器与编程助手。",
+      "tags": ["AI IDE", "编程助手", "代码生成", "编辑器", "工具调用"],
+      "doc_url": "https://cursor.com",
+      "github_url": "",
+      "architecture": {
+        "view": "工作台集成驱动逻辑分层",
+        "layers": [
+          {"name": "编辑交互层", "responsibility": "承载编辑器、命令面板、侧边栏与对话入口"},
+          {"name": "智能助手层", "responsibility": "处理补全、问答、改写与任务型操作"},
+          {"name": "工具执行层", "responsibility": "连接终端、代码搜索、诊断与外部能力"},
+          {"name": "工作区同步层", "responsibility": "管理文件状态、上下文与项目协同信息"}
+        ],
+        "physical_view": "IDE 界面 -> 助手运行时 -> 工具执行层 -> 工作区 / 仓库",
+        "control_point": "开发者工作流与 IDE 内嵌体验",
+        "integration_surface": "编辑器能力、本地终端、代码库、外部工具",
+        "boundary": "偏开发工作台产品，不是纯协议或纯模型能力",
+        "difference_marker": "工作台集成主导"
+      }
+    },
+    {
+      "name": "OpenClaw",
+      "summary": "Agent 框架，强调技能、MCP 与多 Agent 协作。",
+      "tags": ["Agent 框架", "技能", "协议", "工具调用", "多 Agent 协作"],
+      "doc_url": "https://openclaw.ai",
+      "github_url": "",
+      "architecture": {
+        "view": "框架编排驱动逻辑分层",
+        "layers": [
+          {"name": "能力声明层", "responsibility": "组织技能、协议、角色与可用能力集合"},
+          {"name": "任务编排层", "responsibility": "协调任务流转、技能调用与上下文切换"},
+          {"name": "协议接入层", "responsibility": "通过 MCP 等协议连接外部工具与服务"},
+          {"name": "多 Agent 协同层", "responsibility": "承接角色分工、消息协作与结果汇总"}
+        ],
+        "physical_view": "应用 / 运行时 -> 框架编排器 -> MCP / 技能系统 -> 多 Agent 执行单元",
+        "control_point": "框架级编排与能力组织",
+        "integration_surface": "技能系统、MCP 服务、多个 Agent",
+        "boundary": "偏 Agent 框架封装，不是单纯协议标准或单一 Agent 实体",
+        "difference_marker": "框架编排主导"
+      }
+    },
+    {
+      "name": "Multi-Agent",
+      "summary": "多智能体协作与任务分配。",
+      "tags": ["多智能体", "协作", "多 Agent 协作"],
+      "doc_url": "",
+      "github_url": "",
+      "architecture": {
+        "view": "协同调度驱动逻辑分层",
+        "layers": [
+          {"name": "任务拆解层", "responsibility": "定义角色、边界与任务切分方式"},
+          {"name": "协调调度层", "responsibility": "负责任务路由、依赖控制与协作节奏"},
+          {"name": "角色执行层", "responsibility": "由多个 Agent 各自执行专属职责"},
+          {"name": "共享状态层", "responsibility": "同步上下文、聚合结果并处理冲突"}
+        ],
+        "physical_view": "协调器 -> 执行 Agent -> 共享记忆 / 总线 -> 结果汇聚",
+        "control_point": "角色划分与协同协议",
+        "integration_surface": "多个 Agent、共享上下文、消息通道",
+        "boundary": "强调协作机制，不规定单个 Agent 内部实现",
+        "difference_marker": "协同调度主导"
+      }
+    },
+    {
+      "name": "Agent Harness Engineering",
+      "summary": "面向智能体的工程学科：在模型之外构建编排、评测、观测与治理，使工具调用与多步任务可复现、可度量；勿与 Harness.io 混淆。",
+      "tags": ["智能体", "验证", "自动化", "测试框架", "工具调用", "多步任务", "Agent 框架", "标准化", "协议"],
+      "doc_url": "https://harness-engineering.ai/blog/what-is-harness-engineering/",
+      "github_url": "",
+      "sources": [
+        {
+          "name": "OpenAI Codex Engineering Article",
+          "url": "https://openai.com/index/building-openai-codex/",
+          "type": "官方博客/工程文章",
+          "authority": "B",
+          "role": "工程实践案例与运行时约束"
+        },
+        {
+          "name": "Anthropic Agentic Systems",
+          "url": "https://docs.anthropic.com/en/docs/build-with-claude/agentic-systems",
+          "type": "官方文档",
+          "authority": "B",
+          "role": "Agent harness 相关控制与工具调用背景"
+        }
+      ],
+      "architecture": {
+        "view": "验证治理驱动逻辑分层",
+        "layers": [
+          {"name": "场景定义层", "responsibility": "定义任务样例、数据集、预期行为与评测口径"},
+          {"name": "编排执行层", "responsibility": "驱动 Agent、工具链、工作流与回放执行"},
+          {"name": "观测评测层", "responsibility": "采集轨迹、指标、日志并做质量评估"},
+          {"name": "治理闭环层", "responsibility": "把结果反馈回规范、基线、流程与版本治理"}
+        ],
+        "physical_view": "场景 / 数据集 -> Harness 运行时 -> Agent / 工具链 -> 指标 / 评测 / 治理",
+        "control_point": "评测口径与执行编排",
+        "integration_surface": "Agent 运行时、工具链、观测系统、评测基座",
+        "boundary": "更关注可复现、可度量、可治理，而不是单独定义协议或模型本体",
+        "difference_marker": "验证治理主导"
+      }
+    }
+  ],
+  "tag_catalog": [
+    {"tag": "协议", "hint": "标准化通信协议"},
+    {"tag": "标准化", "hint": "统一接口规范"},
+    {"tag": "工具调用", "hint": "调用外部工具/服务"},
+    {"tag": "AI 集成", "hint": "与 AI 模型集成"},
+    {"tag": "API", "hint": "应用程序接口"},
+    {"tag": "大模型", "hint": "大型语言模型"},
+    {"tag": "自然语言", "hint": "自然语言处理"},
+    {"tag": "生成式 AI", "hint": "内容生成"},
+    {"tag": "推理", "hint": "逻辑推理"},
+    {"tag": "智能体", "hint": "AI 智能体"},
+    {"tag": "自主", "hint": "自主决策"},
+    {"tag": "规划", "hint": "任务规划"},
+    {"tag": "执行", "hint": "任务执行"},
+    {"tag": "多步任务", "hint": "多步骤任务处理"},
+    {"tag": "AI IDE", "hint": "AI 驱动的 IDE"},
+    {"tag": "编程助手", "hint": "代码编写辅助"},
+    {"tag": "代码生成", "hint": "自动生成代码"},
+    {"tag": "编辑器", "hint": "代码编辑器"},
+    {"tag": "Agent 框架", "hint": "Agent 开发框架"},
+    {"tag": "技能", "hint": "技能系统"},
+    {"tag": "多 Agent 协作", "hint": "多智能体协作"},
+    {"tag": "命令行", "hint": "命令行交互"},
+    {"tag": "CLI", "hint": "命令行接口"},
+    {"tag": "终端交互", "hint": "终端用户交互"},
+    {"tag": "测试框架", "hint": "测试工具框架"},
+    {"tag": "自动化", "hint": "自动化执行"},
+    {"tag": "验证", "hint": "质量验证"},
+    {"tag": "CI/CD", "hint": "持续集成/部署"},
+    {"tag": "多智能体", "hint": "多智能体系统"},
+    {"tag": "协作", "hint": "协作机制"}
+  ]
+}

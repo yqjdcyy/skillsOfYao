@@ -1,0 +1,18 @@
+---
+description: skillsOfYao 仓库中的 skill、command、脚本必须遵守统一配置与迁移规范
+alwaysApply: true
+---
+
+# skillsOfYao 规则
+
+- 新建或迁移 skill 时，源码只能落在本仓库，禁止直接写入全局目录。
+- 场景目录只允许使用 `learning/`、`work/`、`work/document-output/`、`work/workflow/`、`life/`。
+- 所有默认路径、人员信息、仓库名、creator keyword、全局目录都必须优先从 `config/system.json` 读取。
+- 项目内 `.cursor/skills` 旧入口如需统一回指，必须通过 `localExposure.projectSkillRoots` 纳入脚本维护。
+- 发现写死绝对路径、写死人名、写死仓库名、写死全局目录时，必须改为配置化。
+- 若关键配置不存在且无法安全推断，必须提示用户优先提供，不能继续依赖写死值。
+- 脚本必须通过 `scripts/config.sh` 读取配置，不能偷偷回退到写死默认值。
+- `SKILL.md` 应包含配置说明；`command` 应说明依赖的配置键。
+- 迁移时必须同步检查附属依赖文件，且不得把历史产物目录当作运行依赖迁入。
+- 新建 skill 必须走 `commands/workflow/new-skill.md` 约定的流程。
+- 详细规范见 `docs/skill-repo-standard.md`。

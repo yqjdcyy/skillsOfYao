@@ -1,0 +1,28 @@
+{
+  "match_threshold": 0.6,
+  "confirm_timeout_seconds": 300,
+  "round1": {
+    "title": "确认 1：基本信息",
+    "fields": ["技术名称", "官方定义摘要", "核心功能要点"],
+    "valid_replies": ["确认", "不是", "补充", "手动输入"],
+    "preset_options": ["确认", "不是", "补充", "手动输入"],
+    "prompt": "请核对以下信息是否正确。回复「确认」继续；「不是」请说明错误；「补充」请追加要点。"
+  },
+  "round2": {
+    "title": "确认 2：对比方向",
+    "valid_replies": ["全部对比", "对比 {名称}", "继续探索", "手动输入"],
+    "preset_options": ["全部对比", "继续探索", "对比 Top1", "对比 Top2", "手动输入"],
+    "prompt": "以下为与知识库的 Tag 匹配结果（按匹配度排序）。回复「全部对比」或「对比 MCP」等形式指定对象；「继续探索」表示仅深挖新技术、弱化对比。"
+  },
+  "preset_technologies": [
+    "MCP",
+    "LLM",
+    "Agent",
+    "Cursor",
+    "OpenClaw",
+    "Multi-Agent",
+    "Agent Harness Engineering",
+    "手动输入"
+  ],
+  "jina_reader_prefix": "https://r.jina.ai/"
+}

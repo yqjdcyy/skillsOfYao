@@ -1,0 +1,32 @@
+{
+  "shared": {
+    "repoRoot": "/Users/luckincoffee/Documents/code/star/skillsOfYao",
+    "cursorRoot": "/Users/luckincoffee/.cursor"
+  },
+  "paths": {
+    "recordRepoRoot": "/Users/luckincoffee/Documents/code/star/record",
+    "monitorDetailsRoot": "/Users/luckincoffee/Documents/data/work/luckin/monitor/details",
+    "monitorDoneRoot": "/Users/luckincoffee/Documents/data/work/luckin/monitor/details/DONE",
+    "reportTemplatePath": "/Users/luckincoffee/Documents/data/work/luckin/monitor/details/2602-日周月记录/报报报模板.md"
+  },
+  "localExposure": {
+    "projectSkillRoots": [
+      "/Users/luckincoffee/Documents/code/star/record/.cursor/skills",
+      "/Users/luckincoffee/Documents/code/Luckin/zeus-nebula/.cursor/skills"
+    ]
+  },
+  "reportWorkflow": {
+    "authorName": "姚清居",
+    "reviewGroup": "监控组",
+    "lucpCreatorKeyword": "姚清居"
+  },
+  "requirementWorkflow": {
+    "defaultRepos": [
+      "zeus-nebula",
+      "zeus-react"
+    ]
+  },
+  "techExplorer": {
+    "feishuWebhook": ""
+  }
+}

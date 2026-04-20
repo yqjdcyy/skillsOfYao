@@ -115,8 +115,6 @@ relink_local_skill_entry() {
     backup_root="$(dirname "$target_path")/_backup_before_skillsOfYao_relink"
     mkdir -p "$backup_root"
     mv "$target_path" "$backup_root/$(basename "$target_path")-${TIMESTAMP}"
-  else
-    return 0
   fi
 
   ln -s "$source_path" "$target_path"
@@ -186,3 +184,13 @@ echo "Relinked local skills: ${#RELINKED_LOCAL_SKILLS[@]}"
 printf '  - %s\n' "${RELINKED_LOCAL_SKILLS[@]:-}"
 echo "Skipped local skills: ${#SKIPPED_LOCAL_SKILLS[@]}"
 printf '  - %s\n' "${SKIPPED_LOCAL_SKILLS[@]:-}"
+
+echo ""
+if [[ -t 0 ]]; then
+  read -r -p "是否配置乐享 MCP 凭证（写入 config/system.secrets.json 并合并 Cursor mcp.json）？[y/N] " _lexiang_ans || true
+  if [[ "${_lexiang_ans:-}" =~ ^[yY] ]]; then
+    bash "$SCRIPT_DIR/lexiang-mcp-setup.sh" || echo "乐享 MCP 配置未成功，可稍后执行: bash scripts/lexiang-mcp-setup.sh" >&2
+  fi
+else
+  echo "可选：bash scripts/lexiang-mcp-setup.sh   # 乐享 MCP 凭证（或设 LEXIANG_MCP_PERSONAL_TOKEN 后执行）"
+fi

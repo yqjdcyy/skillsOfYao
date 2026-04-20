@@ -68,3 +68,39 @@ else:
     print(str(value))
 PY
 }
+
+read_lexiang_mcp_personal_token() {
+  require_system_config
+  export SYSTEM_CONFIG_PATH
+  python3 - <<'PY'
+import json
+import os
+from pathlib import Path
+
+sys_path = Path(os.environ["SYSTEM_CONFIG_PATH"])
+sec_path = sys_path.parent / "system.secrets.json"
+tok = os.environ.get("LEXIANG_MCP_PERSONAL_TOKEN", "").strip()
+if tok.lower().startswith("bearer "):
+    tok = tok[7:].strip()
+if not tok and sec_path.is_file():
+    try:
+        d = json.loads(sec_path.read_text(encoding="utf-8"))
+        tok = str(d.get("reportWorkflow", {}).get("lexiangMcpPersonalToken", "")).strip()
+        if tok.lower().startswith("bearer "):
+            tok = tok[7:].strip()
+    except Exception:
+        tok = ""
+if not tok:
+    try:
+        d = json.loads(sys_path.read_text(encoding="utf-8"))
+        tok = str(d.get("reportWorkflow", {}).get("lexiangMcpPersonalToken", "")).strip()
+        if tok.lower().startswith("bearer "):
+            tok = tok[7:].strip()
+    except Exception:
+        tok = ""
+if tok and ("<" in tok or "LEXIANG_MCP_PERSONAL_TOKEN" in tok):
+    tok = ""
+if tok:
+    print(tok)
+PY
+}

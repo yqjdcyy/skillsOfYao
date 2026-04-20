@@ -4,11 +4,8 @@ Apply the **report-workflow** skill to generate a troubleshooting domain iterati
 
 ## Steps
 
-1. Read `{year}-luckin.md`. Extract all `## 日报` entries from the last 7 days.
-2. Summarize iteration progress in the troubleshooting domain. Group by direction: 触发能力、分析能力、生命周期管理、其它.
-3. Output using the shoot-weekly format from report-workflow's templates:
-   - `### 「迭代方向」` (e.g. 触发能力、分析能力、生命周期管理、其它)
-   - Overall progress and key details
-   - Sub-items by demand size
-   - Relevant design docs, follow-up docs
-4. Output to chat (or append to a dedicated section if specified). Default: output in chat.
+1. Read the target cycle's daily reports from `reports/{year}/daily/`.
+2. Summarize troubleshooting iteration progress by direction: 触发能力、分析能力、生命周期管理、其它.
+3. Output using the shoot-weekly template from report-workflow templates.
+4. Default behavior: output in chat only.
+5. Only write a file if the user explicitly asks to save the summary.

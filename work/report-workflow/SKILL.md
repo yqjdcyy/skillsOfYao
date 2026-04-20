@@ -41,6 +41,7 @@ If any required key is missing, ask the user to provide it first. If a Lexiang s
 | Item | Path |
 |------|------|
 | Plan | `{paths.recordRepoRoot}/plan.md` |
+| Today（可选，今日安排） | `{paths.recordRepoRoot}/today.md` |
 | Daily reports | `{paths.recordRepoRoot}/reports/{year}/daily/{year}-{month}.md` |
 | Weekly reports | `{paths.recordRepoRoot}/reports/{year}/weekly/{year}-W{week}.md` |
 | Monthly reports | `{paths.recordRepoRoot}/reports/{year}/monthly/{year}-{month}.md` |
@@ -87,6 +88,7 @@ For weekly and monthly reports:
 
 - **标题**：每条任务 **`### 具体事项名`**（如 `### 答疑`、`### 故障处置-v2`），**禁止**用泛化标题 `### 工作事项` 顶替真实事项名。
 - **字段顺序**：`- 标签：`；有则 `- 工时：`；`- 完成细项`；可选 `- 文档`。子项缩进与列表层级保持与仓库既有 `reports/{year}/daily` 一致。
+- **`- 文档`（跟进用）**：用户要求或事项含调研/方案/对照时，宜写全 **https URL** 与需跟进的 **本地文件绝对路径**（如 `monitor/details/.../*.md`）；可从 `plan.md`「相关文档」、`today.md` 正文与 **HTML 注释内**暂存的链接一并收录，避免只写标题无锚点。
 - **工时行书写**：`- 工时： 3h` —— **冒号后空一格**再写数值与单位（`h` / `d` / `天` 等，解析脚本与 `1d=8h` 换算一致）。
 - **换算与 1.5d 上限**：统计时 **`1d` = 8h**；只累加**能解析出正数工时**的条目。若当日 **合计 > 12h（1.5d）**，视为不合理堆积，**将 12h 在 n 个有工时条目间均分**（`n` 为上述条目数），再写回各条 `- 工时`。交互生成日报时：草稿中写明**原合计**与**均分结果**，并走 **Confirmation Gate 数字菜单**：`1` 按均分落盘；`2` 保留原始各条工时；`3` 用户补充说明后重新出稿。
 - **批处理脚本**：`{recordRepoRoot}/scripts/regenerate_daily_reports.py` 用于从 **`2026-luckin.md`** 与 **`daily/*.md`** 重算月度日报；默认对超额日 **自动均分**；`--no-hour-split` 或环境变量 **`DAILY_NO_HOUR_SPLIT=1`** 关闭均分；对调整过的日期会向 **stderr** 输出 `[daily-hours]` 一行便于对账。
@@ -130,18 +132,20 @@ When building `/weekly` from dailies, `plan.md`, or meeting notes:
 
 ### Inputs
 
-- user-provided full `plan.md` content, if supplied
-- otherwise the current `{paths.recordRepoRoot}/plan.md`
-- direct current changes are the default comparison source
+- user-provided full `plan.md` content, if supplied; otherwise `{paths.recordRepoRoot}/plan.md`（**整体计划**）
+- optional: `{paths.recordRepoRoot}/today.md`（**今日计划安排**；不存在则仅依赖 `plan` + 用户补充）
+- user clarifications override inferred scope
 
 ### Processing
 
-1. Prefer full `plan.md` pasted by the user; otherwise read the local `plan.md`.
-2. Compare against the current baseline and extract today's newly completed content.
-3. User补充优先。If the user says a work item should be included, include it.
-4. Preserve links, Launch IDs, and document references.
-5. Summarize by work item，严格遵循 **「日报格式控制」**（事项名标题、字段、工时行、无进度/说明）。
-6. 涉及 **工时合计 > 1.5d** 时：按该节 **换算、均分与数字菜单** 执行；脚本批处理时的开关与行为亦以该节为准。
+1. Read `plan.md`；若存在 `today.md` 则一并读取。用户粘贴全文 `plan` 时以粘贴为准。
+2. **当日写入范围**：`###` 事项以 **用户确认的当日主线** 为准。**禁止**仅凭 `plan.md` 相对历史日报/git 的 diff，自动把当日未做的计划增量全部记成「今日完成」。初稿可与用户核对；用户纠正范围或工时时，以纠正为准。
+3. **`today.md` 用法**：与 `plan` **同一套范围判定**——仅将 **已纳入本日日报的事项** 所对应的 `today` 段落（或列表项）并入，用于**充实 `完成细项`**（如当日侧重、工作流子项、对照线索）。`plan` 未记入当日报、`today` 中与当日主线无关的块（如其它探索标题）**不**强行写入日报。
+4. **工时**：优先用户口述；其次 `plan` / `today` 内显式注释（如 `<!-- ... - 4h -->`）。多事项分项占用（如各 4h）须与用户对齐，避免与真实投入矛盾。
+5. User 补充优先：用户要求增删事项或文档，照办。
+6. **链接与文档**：保留 Launch ID、URL、路径；调研/方案类按 **「日报格式控制」`- 文档`** 条，写全便于后续跟进的链接与本地绝对路径。
+7. Summarize by work item，严格遵循 **「日报格式控制」**（事项名标题、字段、工时行、无进度/说明）。
+8. 涉及 **工时合计 > 1.5d** 时：按该节 **换算、均分与数字菜单** 执行；脚本批处理时的开关与行为亦以该节为准。
 
 ### Output
 

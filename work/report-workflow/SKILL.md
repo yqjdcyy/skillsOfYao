@@ -75,16 +75,22 @@ For weekly and monthly reports:
 
 ### Report Grouping
 
-Daily and weekly reports use the same item block structure from [templates.md](templates.md):
+**日报**成稿结构以 **「日报格式控制」** 为准（见下节）；母版片段见 [templates.md](templates.md) 日报节。
 
-- `### 工作事项`
-- `标签`
-- `进度`
-- `说明`
-- `完成细项`
-- `文档`
+**周报**仍为分层 `### 具体事项名`，含 `进度`、`说明`、`完成细项` 等（见 templates 周报节）。
 
-If there are miscellaneous items, append them under `### 其它`.
+杂项可放在 `### 其它`。
+
+### 日报格式控制
+
+与周报区分：日报**不写** `- 进度`、`- 说明`；用 **具体事项名** 作三级标题。
+
+- **标题**：每条任务 **`### 具体事项名`**（如 `### 答疑`、`### 故障处置-v2`），**禁止**用泛化标题 `### 工作事项` 顶替真实事项名。
+- **字段顺序**：`- 标签：`；有则 `- 工时：`；`- 完成细项`；可选 `- 文档`。子项缩进与列表层级保持与仓库既有 `reports/{year}/daily` 一致。
+- **工时行书写**：`- 工时： 3h` —— **冒号后空一格**再写数值与单位（`h` / `d` / `天` 等，解析脚本与 `1d=8h` 换算一致）。
+- **换算与 1.5d 上限**：统计时 **`1d` = 8h**；只累加**能解析出正数工时**的条目。若当日 **合计 > 12h（1.5d）**，视为不合理堆积，**将 12h 在 n 个有工时条目间均分**（`n` 为上述条目数），再写回各条 `- 工时`。交互生成日报时：草稿中写明**原合计**与**均分结果**，并走 **Confirmation Gate 数字菜单**：`1` 按均分落盘；`2` 保留原始各条工时；`3` 用户补充说明后重新出稿。
+- **批处理脚本**：`{recordRepoRoot}/scripts/regenerate_daily_reports.py` 用于从 **`2026-luckin.md`** 与 **`daily/*.md`** 重算月度日报；默认对超额日 **自动均分**；`--no-hour-split` 或环境变量 **`DAILY_NO_HOUR_SPLIT=1`** 关闭均分；对调整过的日期会向 **stderr** 输出 `[daily-hours]` 一行便于对账。
+- **luckin 与 daily 合并**（脚本逻辑）：同一自然日以 **`2026-luckin.md`** 中 `## 日报｜日期` 段落为主，**`daily/YYYY-MM-DD.md`** 中**标题归一化后不重复**的条目追加在后；若某日期仅见于已落盘的 `reports/.../daily`（无 luckin/daily 源）则保留该段成稿。人工在 Cursor 写 `/daily` 时无此合并，按 plan 与格式控制直接写即可。
 
 ### Weekly Aggregation (完成细项)
 
@@ -134,7 +140,8 @@ When building `/weekly` from dailies, `plan.md`, or meeting notes:
 2. Compare against the current baseline and extract today's newly completed content.
 3. User补充优先。If the user says a work item should be included, include it.
 4. Preserve links, Launch IDs, and document references.
-5. Summarize by work item using the daily block format.
+5. Summarize by work item，严格遵循 **「日报格式控制」**（事项名标题、字段、工时行、无进度/说明）。
+6. 涉及 **工时合计 > 1.5d** 时：按该节 **换算、均分与数字菜单** 执行；脚本批处理时的开关与行为亦以该节为准。
 
 ### Output
 

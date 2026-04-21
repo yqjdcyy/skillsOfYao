@@ -34,14 +34,14 @@ Conditional keys:
 3. **仅本机 secrets**：`--secrets-only`；**仅写 mcp**（凭证已在 secrets 或环境变量）：`--mcp-only`。
 4. 脚本与 `scripts/config.sh` 的 `read_lexiang_mcp_personal_token`：**优先**环境变量 → `system.secrets.json` → `system.json`（跳过占位符）。
 
-If any required key is missing, ask the user to provide it first. If a Lexiang sync is needed but any Lexiang key is missing：**仍可对报告文件落盘并 git push**，仅跳过乐享同步并在回复中说明须补配置；或在数字菜单确认前先行提示缺项（由执行方二选一，不得静默失败）。
+If any required key is missing, ask the user to provide it first. If a Lexiang sync is needed but any Lexiang key is missing：**仍可对报告文件落盘并 git push**，仅跳过乐享同步并在回复中说明须补配置；或在 **AskQuestion** 确认前先行提示缺项（由执行方二选一，不得静默失败）。
 
 ## Paths
 
 | Item | Path |
 |------|------|
 | Plan | `{paths.recordRepoRoot}/plan.md` |
-| Today（可选，今日安排） | `{paths.recordRepoRoot}/today.md` |
+| 日粒度细节补充（可选） | `{paths.recordRepoRoot}/today.md`；若仓库另有 `daily.md` 则与 `today.md` **二选一同源角色**，见 **「日粒度细节补充文件」** |
 | Daily reports | `{paths.recordRepoRoot}/reports/{year}/daily/{year}-{month}.md` |
 | Weekly reports | `{paths.recordRepoRoot}/reports/{year}/weekly/{year}-W{week}.md` |
 | Monthly reports | `{paths.recordRepoRoot}/reports/{year}/monthly/{year}-{month}.md` |
@@ -55,9 +55,20 @@ All four report types must follow this gate:
 
 1. Collect inputs
 2. Generate draft
-3. Show the draft; ask for **数字菜单**选择（至少：`1` = 确认并执行落盘与推送；`2` = 取消；可选 `3` = 用文字补充要求后重新出稿）。
-4. **仅当用户选择确认项（如 `1`）后**：**直接**写入目标文件、`git add` / `git commit` / `git push`，并按类型执行乐享同步（若配置完整）。**不**再插入「请自行改稿后再保存」的步骤；成稿以当前草稿为准，除非用户在第 3 步选了补充并触发了重新生成。
-5. 若乐享相关配置不全：用户数字菜单**确认**后**仍**执行报告落盘与 `git push`，仅**跳过**乐享同步并在回复中说明原因。
+3. Show the draft；**与用户确认**：在 **Cursor Agent** 中 **必须**调用 **`AskQuestion`**（内置工具）呈现选项，**不得**仅依赖聊天内「回复 1/2/3」作为唯一确认方式。
+4. **`AskQuestion` 标准三选项**（一条 question、三个 option id；`label` 用简短中文）：
+   - `confirm`：确认并执行落盘、`git add` / `git commit` / `git push`，并按类型执行乐享同步（若配置完整）
+   - `cancel`：取消，不改仓库
+   - `revise`：用文字补充要求后重新出稿（用户下一条消息给出补充后从步骤 2 重跑，再 **再次** `AskQuestion`）
+5. **仅当用户选择 `confirm`**：**直接**写入目标文件并完成 git 与乐享（若可）。**不**再插入「请自行改稿后再保存」；成稿以当前草稿为准，除非用户选了 `revise` 并触发了重新生成。
+6. 若乐享相关配置不全：用户 **`confirm`** 后**仍**执行报告落盘与 `git push`，仅**跳过**乐享同步并在回复中说明原因。
+7. **降级**：仅当运行环境 **不具备** `AskQuestion` 时，可用文字列举等价三选一（原「数字菜单」语义）。
+
+#### Cursor `AskQuestion` 调用约定
+
+- **何时调用**：每次展示周报/月报/日报/ shoot-weekly 需保存的草稿之后、**第一次**执行写文件与 git 之前；`revise` 循环中每次新草稿后 **再调用一次**。
+- **与草稿的关系**：同一条回复中可先简述草稿要点，再 **紧接着** 调用 `AskQuestion`；选项 id 与上表一致，便于会话追溯。
+- **工时超额均分**（日报「1.5d 上限」）：同一套闸门，但该步的 `AskQuestion` 三选项为：`apply_split`（按均分落盘）、`keep_hours`（保留原始各条工时）、`revise`（补充说明后重新出稿）。
 
 ### Progress Mapping
 
@@ -88,9 +99,9 @@ For weekly and monthly reports:
 
 - **标题**：每条任务 **`### 具体事项名`**（如 `### 答疑`、`### 故障处置-v2`），**禁止**用泛化标题 `### 工作事项` 顶替真实事项名。
 - **字段顺序**：`- 标签：`；有则 `- 工时：`；`- 完成细项`；可选 `- 文档`。子项缩进与列表层级保持与仓库既有 `reports/{year}/daily` 一致。
-- **`- 文档`（跟进用）**：用户要求或事项含调研/方案/对照时，宜写全 **https URL** 与需跟进的 **本地文件绝对路径**（如 `monitor/details/.../*.md`）；可从 `plan.md`「相关文档」、`today.md` 正文与 **HTML 注释内**暂存的链接一并收录，避免只写标题无锚点。
+- **`- 文档`（跟进用）**：用户要求或事项含调研/方案/对照时，宜写全 **https URL** 与需跟进的 **本地文件绝对路径**（如 `monitor/details/.../*.md`）；可从 `plan.md`「相关文档」、**日粒度细节补充文件** 正文与 **HTML 注释内**暂存的链接一并收录，避免只写标题无锚点。
 - **工时行书写**：`- 工时： 3h` —— **冒号后空一格**再写数值与单位（`h` / `d` / `天` 等，解析脚本与 `1d=8h` 换算一致）。
-- **换算与 1.5d 上限**：统计时 **`1d` = 8h**；只累加**能解析出正数工时**的条目。若当日 **合计 > 12h（1.5d）**，视为不合理堆积，**将 12h 在 n 个有工时条目间均分**（`n` 为上述条目数），再写回各条 `- 工时`。交互生成日报时：草稿中写明**原合计**与**均分结果**，并走 **Confirmation Gate 数字菜单**：`1` 按均分落盘；`2` 保留原始各条工时；`3` 用户补充说明后重新出稿。
+- **换算与 1.5d 上限**：统计时 **`1d` = 8h**；只累加**能解析出正数工时**的条目。若当日 **合计 > 12h（1.5d）**，视为不合理堆积，**将 12h 在 n 个有工时条目间均分**（`n` 为上述条目数），再写回各条 `- 工时`。交互生成日报时：草稿中写明**原合计**与**均分结果**，并请用户用 **`AskQuestion`** 在 `apply_split` / `keep_hours` / `revise` 中择一（语义见 **「Cursor `AskQuestion` 调用约定」** 之工时超额均分条）；无 `AskQuestion` 时降级为文字三选一。
 - **批处理脚本**：`{recordRepoRoot}/scripts/regenerate_daily_reports.py` 用于从 **`2026-luckin.md`** 与 **`daily/*.md`** 重算月度日报；默认对超额日 **自动均分**；`--no-hour-split` 或环境变量 **`DAILY_NO_HOUR_SPLIT=1`** 关闭均分；对调整过的日期会向 **stderr** 输出 `[daily-hours]` 一行便于对账。
 - **luckin 与 daily 合并**（脚本逻辑）：同一自然日以 **`2026-luckin.md`** 中 `## 日报｜日期` 段落为主，**`daily/YYYY-MM-DD.md`** 中**标题归一化后不重复**的条目追加在后；若某日期仅见于已落盘的 `reports/.../daily`（无 luckin/daily 源）则保留该段成稿。人工在 Cursor 写 `/daily` 时无此合并，按 plan 与格式控制直接写即可。
 
@@ -130,22 +141,50 @@ When building `/weekly` from dailies, `plan.md`, or meeting notes:
 
 ## /daily
 
+### 日粒度细节补充文件（`today.md`）
+
+- **定位**：仅作 **细节补充**（措辞、`完成细项` 颗粒度、对照与链接线索），**不**单独决定「当日有哪些事项要写进日报」。
+- **不得**仅凭该文件块标题，把未在 `plan.md` + 下文 **plan 对齐规则** 中出现的主题升格为独立 `###` 主线（除非用户确认）。
+- 与 `plan` **共用范围**：只合并 **已纳入本日日报候选** 的对应段落/列表；与当日主线无关的探索块不强行写入。
+- 仓库实现：以 `{paths.recordRepoRoot}/today.md` 为主；若存在 `daily.md` 且团队约定使用，则与其 **二选一**，语义与本节相同。
+
+### plan.md 对齐：`git diff` 与 `<!-- ... -->`
+
+- **新增候选（与 plan 文件一致）**：对 `plan.md` 做 **相对当前 HEAD（或用户指定的 ref）的 `git diff`**，**新增的行**为「计划面上当日/近期刚落下」的线索；其中：
+  - 以 **`<!-- ... -->`** 包裹的内容：承载**临时线索、工时、待办、URL**（与正文列表行的新增 **配合**阅读）；提日报草稿时与正文新增 **一起**作为候选，**不**单独把注释块里没有对应正文落地的工作记为已完成。
+  - **未**注释的列表行新增：同上条「候选人」，**仍须**经 **用户确认的当日主线** 或事实描述（如当日已产出文件）校验，**禁止** diff 里出现即等同「今日已做完」。
+- **与前序「禁止仅凭 diff 记完成」的关系**：diff + 注释用于 **缩小猜测范围、对齐 plan 编辑习惯**；最终是否写入日报、写几条，仍以 **用户确认** 与真实产出为准，二者不矛盾。
+
+### plan 结构识别（避免错归事项）
+
+根目录 `plan.md` 中 **同级 `##` 区块相互独立**，生成日报时 **不得**合并错位：
+
+| plan 区块 | 日报侧要点 |
+|-----------|------------|
+| `## 答疑` | 支持类工作：**单独** `### 答疑`（或既有等价标题），**不**并入 `### AI 排障专家…`。|
+| `## 学习` 或内含「AI 领域名词」「名词解释」等 | **学习/词汇/方法论**：事项名落在 **学习线**（如 `### 学习`、`### AI 领域名词解析`），**不**标成排障主线。|
+| `## AI 排障专家` | 仅该块下条目（含块内 HTML 注释线索）归入 **排障专家** 类 `###`，**不**把别块的 AI 探索塞入此项。|
+| `## 智能化场景尝试` 等 | 按块内真实列表与注释归属；与「名词解析」同在整块时，按子 bullet/`<!-- -->` 归属拆到对应 `###`，避免一句「AI」全装进排障。|
+
+用户粘贴全文 `plan` 时，以上规则仍适用（结构以粘贴稿为准）。
+
 ### Inputs
 
 - user-provided full `plan.md` content, if supplied; otherwise `{paths.recordRepoRoot}/plan.md`（**整体计划**）
-- optional: `{paths.recordRepoRoot}/today.md`（**今日计划安排**；不存在则仅依赖 `plan` + 用户补充）
+- optional: **日粒度细节补充文件**（`today.md`，或仓库约定的 `daily.md`）
 - user clarifications override inferred scope
 
 ### Processing
 
-1. Read `plan.md`；若存在 `today.md` 则一并读取。用户粘贴全文 `plan` 时以粘贴为准。
-2. **当日写入范围**：`###` 事项以 **用户确认的当日主线** 为准。**禁止**仅凭 `plan.md` 相对历史日报/git 的 diff，自动把当日未做的计划增量全部记成「今日完成」。初稿可与用户核对；用户纠正范围或工时时，以纠正为准。
-3. **`today.md` 用法**：与 `plan` **同一套范围判定**——仅将 **已纳入本日日报的事项** 所对应的 `today` 段落（或列表项）并入，用于**充实 `完成细项`**（如当日侧重、工作流子项、对照线索）。`plan` 未记入当日报、`today` 中与当日主线无关的块（如其它探索标题）**不**强行写入日报。
-4. **工时**：优先用户口述；其次 `plan` / `today` 内显式注释（如 `<!-- ... - 4h -->`）。多事项分项占用（如各 4h）须与用户对齐，避免与真实投入矛盾。
-5. User 补充优先：用户要求增删事项或文档，照办。
-6. **链接与文档**：保留 Launch ID、URL、路径；调研/方案类按 **「日报格式控制」`- 文档`** 条，写全便于后续跟进的链接与本地绝对路径。
-7. Summarize by work item，严格遵循 **「日报格式控制」**（事项名标题、字段、工时行、无进度/说明）。
-8. 涉及 **工时合计 > 1.5d** 时：按该节 **换算、均分与数字菜单** 执行；脚本批处理时的开关与行为亦以该节为准。
+1. Read `plan.md`；对 `plan.md` 运行 **`git diff`**（默认相对 `HEAD`；无 git 或用户指定 paste-only 时跳过 diff，但需提示「未对 diff 对齐」）。若存在 **日粒度细节补充文件** 则一并读取。用户粘贴全文 `plan` 时以粘贴为准。
+2. **候选范围**：结合 **diff 新增**、**`<!-- ... -->` 内线索**、用户口述与**当日可核查产出**（路径、报告、Commit），列出候选事项；**禁止**把 diff 新增 **直接等同**「今日已全部完成」。
+3. **当日写入范围**：`###` 事项以 **用户确认的当日主线** 为准；与 **「plan 结构识别」** 表一致，答疑 / 学习名词 / AI 排障专家 **分线命名**，不得因同属「智能/AI」主题而合错栏。
+4. **日粒度细节补充文件**：仅用于充实 **`完成细项`**、链接与对照说法；**不**反向覆盖第 2、3 步的范围判定。
+5. **工时**：优先用户口述；其次 `plan` / 日粒度补充文件内 **`<!-- ... - Nh -->`** 或等价（多事项分项须与用户对齐）。
+6. User 补充优先：用户要求增删事项或文档，照办。
+7. **链接与文档**：保留 Launch ID、URL、路径；调研/方案类按 **「日报格式控制」`- 文档`** 条写全。
+8. Summarize by work item，严格遵循 **「日报格式控制」**（事项名标题、字段、工时行、无进度/说明）。
+9. 涉及 **工时合计 > 1.5d** 时：按该节 **换算、均分与 `AskQuestion`** 执行（见 **「Cursor `AskQuestion` 调用约定」**）；脚本批处理时的开关与行为亦以 **「日报格式控制」** 该节为准。
 
 ### Output
 

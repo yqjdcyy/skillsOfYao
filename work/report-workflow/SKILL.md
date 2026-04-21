@@ -57,7 +57,7 @@ All four report types must follow this gate:
 2. Generate draft
 3. Show the draft；**与用户确认**：在 **Cursor Agent** 中 **必须**调用 **`AskQuestion`**（内置工具）呈现选项，**不得**仅依赖聊天内「回复 1/2/3」作为唯一确认方式。
 4. **`AskQuestion` 标准三选项**（一条 question、三个 option id；`label` 用简短中文）：
-   - `confirm`：确认并执行落盘、`git add` / `git commit` / `git push`，并按类型执行乐享同步（若配置完整）
+   - `confirm`：确认并执行落盘；`git add` / `git commit` / `git push` 时**须**将 **日报成稿** 与 **`plan.md`、`today.md`**（及与 `today.md` 同角色的 **`daily.md`**，若存在）**一并纳入同一提交**（见 **「/daily Post-confirm Actions」**）；并按类型执行乐享同步（若配置完整）
    - `cancel`：取消，不改仓库
    - `revise`：用文字补充要求后重新出稿（用户下一条消息给出补充后从步骤 2 重跑，再 **再次** `AskQuestion`）
 5. **仅当用户选择 `confirm`**：**直接**写入目标文件并完成 git 与乐享（若可）。**不**再插入「请自行改稿后再保存」；成稿以当前草稿为准，除非用户选了 `revise` 并触发了重新生成。
@@ -193,7 +193,7 @@ When building `/weekly` from dailies, `plan.md`, or meeting notes:
 
 ### Post-confirm Actions
 
-- `git add` the touched report file and related `plan.md` if changed
+- **`git add` 范围（日报）**：除当月 `reports/{year}/daily/{year}-{month}.md` 外，**必须**显式包含 `{recordRepoRoot}/plan.md`、`{recordRepoRoot}/today.md`；若仓库使用 **`daily.md`** 作为日粒度补充文件且存在该路径，**一并** `git add`。目的：与日报同批归档当日计划与补充笔记；若某文件相对 `HEAD` 无变更，`add` 后不会产生额外 diff，仍保持命令一致。
 - `git commit -m "report(daily): {date}"`
 - `git push`
 

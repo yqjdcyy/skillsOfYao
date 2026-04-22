@@ -7,14 +7,21 @@ description: Creates a new requirement workspace under monitor details directory
 
 ## Config
 
-Read the target root from `config/system.json` -> `paths.monitorDetailsRoot`.
+与本 skill 目录同级：读取 `requirement-start-workflow/config/system.json` 中的 `paths.monitorDetailsRoot`。
 
-If the key is missing, ask the user to provide it first.
+路径或键缺失时，先请用户补全。
+
+## 月份（YYMM）
+
+- **含义**：`YY` = 公历年份后两位，`MM` = 月份（01–12，两位补零）。例：`2603` = 2026 年 3 月。
+- **取值**：
+  1. 用户在本轮消息中明确给出的 YYMM（归属非当前自然月时，以用户为准）；
+  2. 未给出时，用**当前公历年月**生成 YYMM：`YY` + `MM`（取执行时的权威当前日期：优先会话 user_info「Today's date」等已给出的日期；否则用运行环境当前日期）。
+- **不得**：凭 `monitorDetailsRoot` 下其它文件夹名猜测 YYMM；不使用配置文件中的固定默认 YYMM。
 
 ## 执行步骤
 
-1. **确认需求信息**：向用户确认或提取 `月份`（YYMM 格式，如 2603）和 `需求概述`（简短描述，如 CursorSDD模式尝试）
-   - 月份选取：用户未指定时，使用当前规划周期 YYMM（如 2603 = 2026年3月），不以系统日期推导
+1. **确认需求信息**：解析或确认 `月份`（YYMM）与 `需求概述`（简短描述，如 CursorSDD模式尝试），月份按上一节规则处理。
 
 2. **创建需求目录**：在 `paths.monitorDetailsRoot` 下创建目录 `{月份}-{需求概述}`
 
@@ -24,7 +31,7 @@ If the key is missing, ask the user to provide it first.
 
 | 项 | 格式 | 示例 |
 |----|------|------|
-| 月份 | YYMM | 2603 |
+| 月份 | YYMM（YY=年份后两位，MM=01–12） | 2603 |
 | 需求概述 | 简短描述 | CursorSDD模式尝试 |
 | 目录名 | {月份}-{需求概述} | 2603-CursorSDD模式尝试 |
 | 文档名 | {需求概述}功能上线.md 或 {目录名}上线.md | 2603-CursorSDD模式尝试上线.md |

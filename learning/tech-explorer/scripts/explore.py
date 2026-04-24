@@ -62,10 +62,10 @@ def prompt_menu(title: str, options: list, allow_multiple: bool = False) -> list
         for idx, item in enumerate(normalized, start=1):
             print(f"{idx}. {item}")
 
-        guide = "请输入编号"
+        guide = "请选择一个选项的编号"
         if allow_multiple:
             guide += "（可用英文逗号分隔多选）"
-        guide += "，直接回车默认选择第 1 项："
+        guide += "；直接回车默认选择第 1 项："
         raw = input(f"{guide}\n> ").strip()
         if not raw:
             return [normalized[0]]

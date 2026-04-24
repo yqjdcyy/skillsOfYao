@@ -18,7 +18,15 @@
   "reportWorkflow": {
     "authorName": "姚清居",
     "reviewGroup": "监控组",
-    "lucpCreatorKeyword": "姚清居"
+    "lucpCreatorKeyword": "姚清居",
+    "lexiangWeeklyRoot": "https://lexiangla.com/pages/21c9479332e749dbabfe204c1103faf5?company_from=7d6d91e84cca11f0908e1af521f7359d",
+    "lexiangMonthlyRoot": "https://lexiangla.com/pages/48f528951c5441d1b027537d8bc40769?company_from=7d6d91e84cca11f0908e1af521f7359d",
+    "lexiangMcpPersonalToken": "<LEXIANG_MCP_PERSONAL_TOKEN>",
+    "lexiangMcpServer": {
+      "name": "lexiang",
+      "url": "https://mcp.lexiang-app.com/mcp?company_from=7d6d91e84cca11f0908e1af521f7359d",
+      "transportType": "streamable-http"
+    }
   },
   "requirementWorkflow": {
     "defaultRepos": [

@@ -23,7 +23,15 @@
 
 若配置不存在或缺少关键项，相关 skill、command、脚本应优先提示用户提供配置，而不是继续依赖写死地址。
 
-其中 `localExposure.projectSkillRoots` 用于维护项目内 `.cursor/skills` 入口。`install.sh` 会对这些目录中已存在的同名 skill 做备份并重链到 `skillsOfYao`；`uninstall.sh` 会移除指向本仓库的本地软链。
+其中 `localExposure.projectSkillRoots` 用于维护**各项目内** skill 入口（常见为 `<项目>/.cursor/skills`；若 OpenClaw 等仍使用项目根下 `skills/`，也可把该目录加进列表）。
+
+`install.sh` 行为要点：
+
+- 将本仓库内全部 skill 链到 `shared.cursorRoot/skills`，commands 链到 `.../commands`。
+- 对 `projectSkillRoots` 中**每一个已配置目录**：按本仓库 skill **同名**建立或刷新软链；若该处已是同名真实目录则先备份到同级 `_backup_before_skillsOfYao_relink/` 再链；若尚不存在则**新建软链**（与旧版「仅当目录已存在才处理」不同，避免 `report-workflow` 等从未出现在 `.cursor/skills` 时漏装）。
+- **唯一源码**：例如 `report-workflow` 以 `work/report-workflow/` 为准；`record/skills/report-workflow` 等历史副本应删除或改为指向本路径的软链，不要双轨维护。
+
+`uninstall.sh` 会移除 `cursorRoot` 下及 `projectSkillRoots` 各目录中、解析后仍落在本仓库内的软链。
 
 ## 仓库规范
 
@@ -67,6 +75,15 @@
 ```bash
 bash scripts/install.sh
 ```
+
+安装结束可交互配置 **乐享 MCP**：写入 `config/system.secrets.json`（已 `.gitignore`）并合并 `shared.cursorRoot/mcp.json`。亦可之后执行：
+
+```bash
+bash scripts/lexiang-mcp-setup.sh
+# 或：LEXIANG_MCP_PERSONAL_TOKEN=lxmcp_xxx bash scripts/lexiang-mcp-setup.sh --mcp-only
+```
+
+模板见 `config/system.secrets.json.example`。
 
 ## 卸载
 

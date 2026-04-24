@@ -5,6 +5,7 @@ This repo is the source repository for reusable skills, workflow commands, and s
 ## Primary Areas
 
 - `work/`: production-ready workflow and work-facing skills
+- `work/drawio-orchestrator/`: orchestrates technical drawio requests before any type-specific rendering
 - `learning/`: exploratory or research-oriented skills
 - `commands/workflow/`: command entrypoints that call skills
 - `config/system.json`: shared defaults used by skills and commands
